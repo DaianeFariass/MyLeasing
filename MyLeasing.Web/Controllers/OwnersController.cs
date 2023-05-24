@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyLeasing.Web.Data;
 using MyLeasing.Web.Data.Entities;
@@ -54,7 +52,7 @@ namespace MyLeasing.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Document,OwnerName,FixedPhone,CellPhone,Address")] Owner owner)
+        public async Task<IActionResult> Create(Owner owner)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +84,7 @@ namespace MyLeasing.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Document,OwnerName,FixedPhone,CellPhone,Address")] Owner owner)
+        public async Task<IActionResult> Edit(int id, Owner owner)
         {
             if (id != owner.Id)
             {
