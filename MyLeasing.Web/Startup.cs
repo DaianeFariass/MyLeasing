@@ -30,6 +30,7 @@ namespace MyLeasing.Web
 
             services.AddScoped<IRepository, Repository>(); //Apaga o objeto que já existe e cria outro
 
+            services.AddScoped<IOwnerRepository, OwnerRepository>();
             //AddSingleton - Cria o objeto e está sempre ativo!
 
             services.AddControllersWithViews();

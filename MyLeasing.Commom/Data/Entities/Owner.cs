@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MyLeasing.Commom.Data.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyLeasing.Web.Data.Entities
 {
-    public class Owner
+    public class Owner : IEntity
     {
         public int Id { get; set; } 
         public int Document { get; set; }
