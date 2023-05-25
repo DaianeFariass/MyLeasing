@@ -1,16 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyLeasing.Commom.Data;
 using MyLeasing.Web.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace MyLeasing.Web
 {
@@ -30,7 +26,11 @@ namespace MyLeasing.Web
             {
                 cfg.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"));
             });
-            services.AddTransient<SeedDb>();
+            services.AddTransient<SeedDb>(); //Cria o objeto e quando apaga já não consegue criar outro objeto deste tipo 
+
+            services.AddScoped<IRepository, Repository>(); //Apaga o objeto que já existe e cria outro
+
+            //AddSingleton - Cria o objeto e está sempre ativo!
 
             services.AddControllersWithViews();
         }
