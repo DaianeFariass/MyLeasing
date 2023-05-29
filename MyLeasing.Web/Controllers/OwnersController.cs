@@ -167,10 +167,10 @@ namespace MyLeasing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var owner = await _ownerRepository.GetByIdAsync(id);       
-            var user = await _userHelper.GetUserByIdAsync(owner.UserId);
+            var owner = await _ownerRepository.GetByIdAsync(id); 
+            owner.User = await _userHelper.GetUserByIdAsync(owner.UserId);
             await _ownerRepository.DeleteAsync(owner);
-            await _userHelper.DeleteUserAsync(user);
+            await _userHelper.DeleteUserAsync(owner.User);
 
 
             return RedirectToAction(nameof(Index));

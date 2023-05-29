@@ -32,7 +32,17 @@ namespace MyLeasing.Commom.Data
 
             if (user == null) 
             {
-
+                AddOwner("Carmelita Alves");
+                AddOwner("Cecília Borba");
+                AddOwner("Daiane Farias");
+                AddOwner("Elisangela Dias");
+                AddOwner("Francisco Bezerra");
+                AddOwner("Olívia Pires");
+                AddOwner("Reinaldo Bezerra");
+                AddOwner("Renan Oliveira");
+                AddOwner("Romeu Silva");
+                AddOwner("Rafael Santos");
+                await _context.SaveChangesAsync();
                 user = new User
                 {
                     FirstName = "Daiane",
