@@ -32,17 +32,6 @@ namespace MyLeasing.Commom.Data
 
             if (user == null) 
             {
-                AddOwner("Carmelita Alves");
-                AddOwner("Cecília Borba");
-                AddOwner("Daiane Farias");
-                AddOwner("Elisangela Dias");
-                AddOwner("Francisco Bezerra");
-                AddOwner("Olívia Pires");
-                AddOwner("Reinaldo Bezerra");
-                AddOwner("Renan Oliveira");
-                AddOwner("Romeu Silva");
-                AddOwner("Rafael Santos");
-                await _context.SaveChangesAsync();
                 user = new User
                 {
                     FirstName = "Daiane",
@@ -53,39 +42,29 @@ namespace MyLeasing.Commom.Data
                     Email = "daia_crica@hotmail.com",
                     PhoneNumber = GenerateRandomNumbers(6),
                     
+                    
                    
-                };
-                var owner = new Owner
-                {                
-                    Document = user.Document,
-                    OwnerName = user.FirstName + " " + user.LastName,
-                    FixedPhone = user.PhoneNumber,
-                    CellPhone = user.PhoneNumber,
-                    Address = user.Address,           
-                    UserId = user.Id,
-                    User = user
                 };
                 var result = await _userHelper.AddUserAsync(user, "123456");
                 if (result != IdentityResult.Success)
                 {
                     throw new InvalidOperationException("Could not create the user");
                 }
-                _context.Owners.Add(owner);
+               AddOwner(user);
             }
             await _context.SaveChangesAsync();
         }
-      
-
-        private void AddOwner(string name)
+        private void AddOwner(User user)
         {
             _context.Owners.Add(new Owner
             {
-                OwnerName = name,
-                Document = GenerateRandomNumbers(6),
-                FixedPhone = GenerateRandomNumbers(9),
-                CellPhone = GenerateRandomNumbers(9),
-                Address = GenerateRandomAddress(),
-              
+                Document = user.Document,
+                OwnerName = user.FirstName + " " + user.LastName,
+                FixedPhone = user.PhoneNumber,
+                CellPhone = user.PhoneNumber,
+                Address = user.Address,
+                UserId = user.Id,
+                User = user
             });
         }
         private string GenerateRandomNumbers(int value)

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,7 @@ using MyLeasing.Commom.Data;
 using MyLeasing.Web.Data;
 using MyLeasing.Web.Data.Entities;
 using MyLeasing.Web.Helpers;
+using MyLeasing.Web.Models;
 
 namespace MyLeasing.Web.Controllers
 {
@@ -13,12 +16,18 @@ namespace MyLeasing.Web.Controllers
     {
         private readonly IOwnerRepository _ownerRepository;
         private readonly IUserHelper _userHelper;
-  
-        public OwnersController(IOwnerRepository ownerRepository, IUserHelper userHelper)
+        private readonly IImageHelper _imageHelper;
+        private readonly IConverterHelper _converterHelper;
+
+        public OwnersController(IOwnerRepository ownerRepository, 
+            IUserHelper userHelper, 
+            IImageHelper imageHelper,
+            IConverterHelper converterHelper)
         {
             _ownerRepository = ownerRepository;
             _userHelper = userHelper;
-         
+            _imageHelper = imageHelper;
+            _converterHelper = converterHelper;
         }
 
 
@@ -59,27 +68,39 @@ namespace MyLeasing.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Document,OwnerName,FixedPhone,CellPhone,Address")] Owner owner)
+        public async Task<IActionResult> Create(OwnerViewModel model)
         {
-            var email = Request.Form["Email"].ToString();         
-            email = owner.OwnerName.Replace(" ", "_") + "@Email.com";
+           
+            var email = Request.Form["Email"].ToString();
+            email = model.OwnerName.Replace(" ", "_") + "@Email.com";
             var password = Request.Form["Password"].ToString();
             password = "123456";
 
-            if (string.IsNullOrEmpty(owner.OwnerName) || owner.OwnerName.Split(' ').Length < 2)
+            if (string.IsNullOrEmpty(model.OwnerName) || model.OwnerName.Split(' ').Length < 2)
             {
-                ModelState.AddModelError("Name", "Please enter a full name with at least two names.");
+                ModelState.AddModelError("Name", "Please insert your full name!");
             }
             if (ModelState.IsValid)
             {
-                var user = await _userHelper.CreateUserAsync(owner.OwnerName, email, password, owner.CellPhone, owner.Document);
-                owner.User = await _userHelper.GetUserByEmailAsync(email);
+                var path = string.Empty;
+
+                if (model.ImageFile != null && model.ImageFile.Length > 0)
+                {
+                    path = await _imageHelper.UploadImageAsync(model.ImageFile, "owners");
+                }
+               
+
+                var user = await _userHelper.CreateUserAsync(model.OwnerName,email, password, model.CellPhone, model.Document, model.Address);
+                model.User = await _userHelper.GetUserByEmailAsync(email);
+                var owner = _converterHelper.ToOwner(model, path, true);
                 await _ownerRepository.CreateAsync(owner);
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(owner);
-        
+            return View(model);
+
         }
+
 
         // GET: Owners/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -89,12 +110,13 @@ namespace MyLeasing.Web.Controllers
                 return NotFound();
             }
 
-            var owner = await _ownerRepository.GetByIdAsync(id.Value);
+            var owner = await _ownerRepository.GetOwnerByIdWithUserAsync(id.Value);
             if (owner == null)
             {
                 return NotFound();
             }
-            return View(owner);
+            var model = _converterHelper.ToOwnerViewModel(owner);
+            return View(model);
         }
 
         // POST: Owners/Edit/5
@@ -102,34 +124,35 @@ namespace MyLeasing.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Owner owner)
+        public async Task<IActionResult> Edit(OwnerViewModel model)
         {
-            if (id != owner.Id)
-            {
-                return NotFound();
-            }
-
+           
             if (ModelState.IsValid)
             {
                 try
                 {
-                   
-                    var editedOwner = await _ownerRepository.GetByIdAsync(id);
-                    editedOwner.User = await _userHelper.GetUserByIdAsync(editedOwner.UserId);
-                    editedOwner.Document = owner.Document;
-                    editedOwner.OwnerName = owner.OwnerName;
-                    editedOwner.CellPhone= owner.CellPhone;
-                    editedOwner.Address = owner.Address;
+                    var path = model.ImageUrl;
+                    if (model.ImageFile != null && model.ImageFile.Length > 0)
+                    {
+                        path = await _imageHelper.UploadImageAsync(model.ImageFile, "owners");
+                    }
 
-                                    
+                    var owner = _converterHelper.ToOwner(model, path, false);
+
+                   
+                    var editedOwner = await _ownerRepository.GetOwnerByIdWithUserAsync(model.Id);
+
+
                     await _ownerRepository.UpdateAsync(editedOwner);
 
-                    await _userHelper.UpdateUserAsync(editedOwner.User, owner.OwnerName, owner.Address, owner.CellPhone,owner.Document);
+                   
+                    await _userHelper.UpdateUserAsync(editedOwner.User, model.OwnerName, model.Address, model.CellPhone, model.Document);
+
 
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _ownerRepository.ExistAsync(owner))
+                    if (!await _ownerRepository.ExistAsync(model))
                     {
                         return NotFound();
                     }
@@ -140,9 +163,7 @@ namespace MyLeasing.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            var own = await _ownerRepository.GetByIdAsync(id);
-            own.User = await _userHelper.GetUserByIdAsync(owner.UserId);
-            return View(owner);
+            return View(model);
         }
         // GET: Owners/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -152,7 +173,7 @@ namespace MyLeasing.Web.Controllers
                 return NotFound();
             }
 
-            var owner = await _ownerRepository.GetByIdAsync(id.Value);
+            var owner = await _ownerRepository.GetOwnerByIdWithUserAsync(id.Value);
             if (owner == null)
             {
                 return NotFound();
@@ -167,13 +188,13 @@ namespace MyLeasing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var owner = await _ownerRepository.GetByIdAsync(id); 
-            owner.User = await _userHelper.GetUserByIdAsync(owner.UserId);
+            var owner = await _ownerRepository.GetOwnerByIdWithUserAsync(id);
+            User user = owner.User;
+            await _imageHelper.DeleteImageAsync(owner.ImageUrl);
             await _ownerRepository.DeleteAsync(owner);
-            await _userHelper.DeleteUserAsync(owner.User);
-
-
+            await _userHelper.DeleteUserAsync(user);
             return RedirectToAction(nameof(Index));
         }
     }
+    
 }

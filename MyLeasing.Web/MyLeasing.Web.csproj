@@ -20,4 +20,8 @@
     <ProjectReference Include="..\MyLeasing.Commom\MyLeasing.Commom.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\photos\owners\" />
+  </ItemGroup>
+
 </Project>

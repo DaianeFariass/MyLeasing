@@ -8,7 +8,7 @@ namespace MyLeasing.Web.Helpers
     {
         Task<User> GetUserByEmailAsync(string email);
         Task<User> GetUserByIdAsync(string id);
-        Task<User> CreateUserAsync(string name, string email, string password, string cellPhone, string document);
+        Task<User> CreateUserAsync(string name, string email, string password, string cellPhone, string document, string address);
         Task<IdentityResult> AddUserAsync(User user, string password);
         Task<IdentityResult> UpdateUserAsync(User user, string name, string address, string phonenumber, string document);
         Task<IdentityResult> DeleteUserAsync(User user);

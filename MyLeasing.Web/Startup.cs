@@ -41,10 +41,14 @@ namespace MyLeasing.Web
             {
                 cfg.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"));
             });
+            services.AddTransient<SeedDb>();//Cria o objeto e quando apaga já não consegue criar outro objeto deste tipo 
+
             services.AddScoped<IUserHelper, UserHelper>();
 
-            services.AddTransient<SeedDb>(); //Cria o objeto e quando apaga já não consegue criar outro objeto deste tipo 
+            services.AddScoped<IImageHelper, ImageHelper>();
 
+            services.AddScoped<IConverterHelper, ConverterHelper>();
+        
             services.AddScoped<IRepository, Repository>(); //Apaga o objeto que já existe e cria outro
 
             services.AddScoped<IOwnerRepository, OwnerRepository>();

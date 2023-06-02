@@ -18,7 +18,7 @@ namespace MyLeasing.Web.Helpers
         {
             return await _userManager.CreateAsync(user, password);
         }
-        public async Task<User> CreateUserAsync(string name, string email, string password, string cellPhone, string document)
+        public async Task<User> CreateUserAsync(string name, string email, string password, string cellPhone, string document, string address)
         {
             var user = new User
             {
@@ -28,6 +28,7 @@ namespace MyLeasing.Web.Helpers
                 UserName = email,
                 PhoneNumber = cellPhone,
                 Document = document,
+                Address = address
             };
 
             var result = await AddUserAsync(user, password);
@@ -55,6 +56,7 @@ namespace MyLeasing.Web.Helpers
             user.PhoneNumber = phonenumber;
             user.Document = document;
             return await _userManager.UpdateAsync(user);
+
         }
         public async Task<IdentityResult> DeleteUserAsync(User user)
         {
