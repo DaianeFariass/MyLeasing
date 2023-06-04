@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using MyLeasing.Web.Data;
 using MyLeasing.Web.Data.Entities;
 using MyLeasing.Web.Helpers;
+using MyLeasing.Web.Models;
 
 namespace MyLeasing.Web.Controllers
 {
@@ -16,12 +18,17 @@ namespace MyLeasing.Web.Controllers
 
         private readonly ILesseeRepository _lesseeRepository;
         private readonly IUserHelper _userHelper;
-
+        private readonly IImageHelper _imageHelper;
+        private readonly IConverterHelper _converterHelper;
         public LesseesController(ILesseeRepository lesseeRepository,
-            IUserHelper userHelper)
+            IUserHelper userHelper,
+            IImageHelper imageHelper,
+            IConverterHelper converterHelper)
         {
             _lesseeRepository = lesseeRepository;
             _userHelper = userHelper;
+            _imageHelper = imageHelper;
+            _converterHelper = converterHelper;
         }
 
         // GET: Lessees
@@ -59,22 +66,30 @@ namespace MyLeasing.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Lessee lessee)
+        public async Task<IActionResult> Create(LesseeViewModel model)
         {
             var email = Request.Form["Email"].ToString();
-            email = lessee.FullName.Replace(" ", "_") + "@Email.com";
+            email = model.FullName.Replace(" ", "_") + "@Email.com";
             var password = Request.Form["Password"].ToString();
             password = "123456";
 
             if (ModelState.IsValid)
             {
+                var path = string.Empty;
 
-                var user = await _userHelper.CreateUserAsync(lessee.FullName, email, password, lessee.CellPhone, lessee.Document, lessee.Address);
-                lessee.user = await _userHelper.GetUserByEmailAsync(email);
+                if (model.ImageFile != null && model.ImageFile.Length > 0)
+                {
+                    path = await _imageHelper.UploadImageAsync(model.ImageFile, "lessees");
+                }
+
+
+                var user = await _userHelper.CreateUserAsync(model.FullName, email, password, model.CellPhone, model.Document, model.Address);
+                model.user = await _userHelper.GetUserByEmailAsync(email);
+                var lessee = _converterHelper.ToLesse(model, path, true);
                 await _lesseeRepository.CreateAsync(lessee);
                 return RedirectToAction(nameof(Index));
             }
-            return View(lessee);
+            return View(model);
             
         }
 
@@ -91,8 +106,8 @@ namespace MyLeasing.Web.Controllers
             {
                 return NotFound();
             }
-        
-            return View(lessee);
+            var model = _converterHelper.ToLesseeViewModel(lessee);
+            return View(model);
         }
 
         // POST: Lessees/Edit/5
@@ -100,18 +115,23 @@ namespace MyLeasing.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Lessee lessee)
+        public async Task<IActionResult> Edit(LesseeViewModel model)
         {
-            if (id != lessee.Id)
-            {
-                return NotFound();
-            }
-
+            
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var editedLessee = await  _lesseeRepository.GetLesseeByIdWithUserAsync(id);
+                    var path = string.Empty;
+
+                    if (model.ImageFile != null && model.ImageFile.Length > 0)
+                    {
+                        path = await _imageHelper.UploadImageAsync(model.ImageFile, "lessees");
+                    }
+                    var lessee = _converterHelper.ToLesse(model, path, true);
+
+                    var editedLessee = await  _lesseeRepository.GetLesseeByIdWithUserAsync(model.Id);
+                   
                     editedLessee.Document= lessee.Document;
                     editedLessee.FirstName= lessee.FirstName;
                     editedLessee.LastName= lessee.LastName;
@@ -128,7 +148,7 @@ namespace MyLeasing.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (! await _lesseeRepository.ExistAsync(lessee))
+                    if (! await _lesseeRepository.ExistAsync(model))
                     {
                         return NotFound();
                     }
@@ -139,7 +159,7 @@ namespace MyLeasing.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(lessee);
+            return View(model);
         }
 
         // GET: Lessees/Delete/5
@@ -164,11 +184,13 @@ namespace MyLeasing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var lessee = await _lesseeRepository.GetLesseeByIdWithUserAsync(id);
+            var lessee = await _lesseeRepository.GetLesseeByIdWithUserAsync(id);       
+            User user = lessee.user;
+            await _imageHelper.DeleteImageAsync(lessee.ImageUrl);
             await _lesseeRepository.DeleteAsync(lessee);
+            await _userHelper.DeleteUserAsync(user);
             return RedirectToAction(nameof(Index));
         }
-
       
     }
 }

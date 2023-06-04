@@ -1,5 +1,6 @@
 ﻿using MyLeasing.Web.Data.Entities;
 using MyLeasing.Web.Models;
+using System.Net;
 
 namespace MyLeasing.Web.Helpers
 {
@@ -16,6 +17,7 @@ namespace MyLeasing.Web.Helpers
                 FixedPhone = model.FixedPhone,
                 Address = model.Address,
                 ImageUrl = path,
+                UserId= model.UserId,
                 User = model.User,
             };
         }
@@ -31,8 +33,46 @@ namespace MyLeasing.Web.Helpers
                 FixedPhone = owner.FixedPhone,
                 Address = owner.Address,
                 ImageUrl = owner.ImageUrl,
+                UserId= owner.UserId,
                 User = owner.User
             };
+        }
+        public Lessee ToLesse(LesseeViewModel model, string path, bool isNew) 
+        {
+            return new Lessee
+            {
+                Id = isNew ? 0 : model.Id,
+                Document = model.Document,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                FixedPhone = model.FixedPhone,
+                CellPhone = model.CellPhone,
+                ImageUrl = path,
+                Address = model.Address,
+                UserId = model.UserId,
+                user = model.user
+              
+
+            };
+                  
+        }
+        public LesseeViewModel ToLesseeViewModel(Lessee lessee) 
+        {
+            return new LesseeViewModel
+            {
+                Id = lessee.Id,
+                Document = lessee.Document,
+                FirstName = lessee.FirstName,
+                LastName = lessee.LastName,
+                FixedPhone = lessee.FixedPhone,
+                CellPhone = lessee.CellPhone,
+                ImageUrl = lessee.ImageUrl,
+                Address = lessee.Address,
+                UserId= lessee.UserId,
+                user = lessee.user
+                
+            };
+
         }
     }
 }
