@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyLeasing.Commom.Data.Entities;
-using MyLeasing.Web.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using MyLeasing.Commom.Data.Entities;
+using MyLeasing.Web.Data;
+
 
 namespace MyLeasing.Commom.Data
 {

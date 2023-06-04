@@ -51,6 +51,7 @@ namespace MyLeasing.Commom.Data
                     throw new InvalidOperationException("Could not create the user");
                 }
                AddOwner(user);
+               AddLessee(user);
             }
             await _context.SaveChangesAsync();
         }
@@ -66,6 +67,23 @@ namespace MyLeasing.Commom.Data
                 UserId = user.Id,
                 User = user
             });
+        }
+        private void AddLessee(User user) 
+        {
+            _context.Lessee.Add(new Lessee
+            {
+                Document = user.Document,
+                FirstName= user.FirstName,
+                LastName= user.LastName,
+                FixedPhone= user.PhoneNumber,
+                CellPhone= user.PhoneNumber,
+                Address = user.Address,
+                UserId = user.Id,
+                user= user
+
+            });
+        
+        
         }
         private string GenerateRandomNumbers(int value)
         {

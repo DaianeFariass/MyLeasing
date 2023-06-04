@@ -90,7 +90,7 @@ namespace MyLeasing.Web.Controllers
                 }
                
 
-                var user = await _userHelper.CreateUserAsync(model.OwnerName,email, password, model.CellPhone, model.Document, model.Address);
+                var user = await _userHelper.CreateUserAsync(model.OwnerName,email, password, model.Document, model.CellPhone, model.Address);
                 model.User = await _userHelper.GetUserByEmailAsync(email);
                 var owner = _converterHelper.ToOwner(model, path, true);
                 await _ownerRepository.CreateAsync(owner);

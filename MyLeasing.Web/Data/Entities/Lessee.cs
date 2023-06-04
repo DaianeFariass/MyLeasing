@@ -1,11 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using MyLeasing.Commom.Data.Entities;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace MyLeasing.Web.Data.Entities
 {
-    public class Lessee
+    public class Lessee : IEntity
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [Display(Name = "Document")]
         [MaxLength(20, ErrorMessage = "The {0} field can not have more than {1} characters.")]
@@ -35,6 +37,6 @@ namespace MyLeasing.Web.Data.Entities
         public string FullNameWithDocument => $"{FirstName} {LastName} - {Document}";
         public string UserId { get; set; }
         public User user { get; set; }
-
+        
     }
 }

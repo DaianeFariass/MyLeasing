@@ -10,6 +10,8 @@ namespace MyLeasing.Web.Data
     public class DataContext : IdentityDbContext<User>
     {
         public DbSet<Owner> Owners { get; set; }
+
+        public DbSet<Lessee> lessees { get; set; }
       
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
@@ -25,6 +27,11 @@ namespace MyLeasing.Web.Data
                 .HasOne(u => u.Owner)
                 .WithOne(o => o.User)
                 .HasForeignKey<Owner>(u => u.UserId);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Lessee)
+                .WithOne(l => l.user)
+                .HasForeignKey<Lessee>(u => u.UserId);
         }
 
         public DbSet<MyLeasing.Web.Data.Entities.Lessee> Lessee { get; set; }

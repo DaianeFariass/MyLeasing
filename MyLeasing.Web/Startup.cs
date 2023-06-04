@@ -53,7 +53,8 @@ namespace MyLeasing.Web
 
             services.AddScoped<IOwnerRepository, OwnerRepository>();
 
-          
+            services.AddScoped<ILesseeRepository, LesseeRepository>();
+      
 
             //AddSingleton - Cria o objeto e está sempre ativo!
 
@@ -78,7 +79,7 @@ namespace MyLeasing.Web
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
