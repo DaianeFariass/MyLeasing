@@ -6,7 +6,9 @@ using MyLeasing.Web.Data;
 using MyLeasing.Web.Data.Entities;
 using MyLeasing.Web.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -16,48 +18,63 @@ namespace MyLeasing.Commom.Data
     {
         private readonly DataContext _context;
         private readonly IUserHelper _userHelper;
-       
+        private readonly IOwnerRepository _ownerRepository;
+        private readonly ILesseeRepository _lesseeRepository;
         private Random _random;       
-        public SeedDb(DataContext context, IUserHelper userHelper)
+        public SeedDb(DataContext context, IUserHelper userHelper, IOwnerRepository ownerRepository, ILesseeRepository lesseeRepository)
         {
             _context = context;
-            _userHelper = userHelper;          
+            _userHelper = userHelper; 
+            _ownerRepository = ownerRepository;
+            _lesseeRepository = lesseeRepository;
             _random = new Random();
         }
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync();
-
-            var user = await _userHelper.GetUserByEmailAsync("daia_crica@hotmail.com");
-
-            if (user == null) 
+            for (int i = 0; i < 5; i++)
             {
-                user = new User
-                {
-                    FirstName = "Daiane",
-                    LastName = "Farias",
-                    UserName = "daia_crica@hotmail.com",
-                    Document = GenerateRandomNumbers(6),
-                    Address = GenerateRandomAddress(),
-                    Email = "daia_crica@hotmail.com",
-                    PhoneNumber = GenerateRandomNumbers(6),
-                    
-                    
-                   
-                };
-                var result = await _userHelper.AddUserAsync(user, "123456");
-                if (result != IdentityResult.Success)
-                {
-                    throw new InvalidOperationException("Could not create the user");
-                }
-               AddOwner(user);
-               AddLessee(user);
+
+                User user = await GenerateUserAsync();
+                await AddOwner(user);
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+
+                User user = await GenerateUserAsync();
+                await AddLessee(user);
             }
             await _context.SaveChangesAsync();
+
+            var getUser = await _userHelper.GetUserByEmailAsync("daia_crica@hotmail.com");          
         }
-        private void AddOwner(User user)
+        private async Task<User> GenerateUserAsync()
         {
-            _context.Owners.Add(new Owner
+            var name = GenerateRandomFirstName();
+            var email = GenerateRandomEmail(name);
+            var user = new User
+            {
+                FirstName = GenerateRandomFirstName(),
+                LastName = GenerateRandomLastName(),
+                UserName = email,
+                Document = GenerateRandomNumbers(6),
+                Address = GenerateRandomAddress(),
+                Email = email,
+                PhoneNumber = GenerateRandomNumbers(6),
+
+            };
+
+            var result = await _userHelper.AddUserAsync(user, "123456");
+            if (result != IdentityResult.Success)
+            {
+                throw new InvalidOperationException("Could not create the user");
+            }
+            return user;
+        }
+        private async Task AddOwner(User user)
+        {
+            var owner = new Owner
             {
                 Document = user.Document,
                 OwnerName = user.FirstName + " " + user.LastName,
@@ -66,25 +83,27 @@ namespace MyLeasing.Commom.Data
                 Address = user.Address,
                 UserId = user.Id,
                 User = user
-            });
+            };
+            await _ownerRepository.CreateAsync(owner);
         }
-        private void AddLessee(User user) 
-        {
-            _context.Lessee.Add(new Lessee
-            {
-                Document = user.Document,
-                FirstName= user.FirstName,
-                LastName= user.LastName,
-                FixedPhone= user.PhoneNumber,
-                CellPhone= user.PhoneNumber,
-                Address = user.Address,
-                UserId = user.Id,
-                user= user
 
-            });
-        
-        
+        private async Task AddLessee(User user)
+        {
+            var lesse = new Lessee
+            {
+               Document = user.Document,
+               FirstName= GenerateRandomFirstName(),
+               LastName= GenerateRandomLastName(),
+               FixedPhone= user.PhoneNumber,
+               CellPhone= user.PhoneNumber, 
+               Address = GenerateRandomAddress(),
+
+            };
+
+            await _lesseeRepository.CreateAsync(lesse);
+
         }
+      
         private string GenerateRandomNumbers(int value)
         {
             string phoneNumber = "";
@@ -105,6 +124,29 @@ namespace MyLeasing.Commom.Data
 
             return $" {streetSuffix}: {street}, {number}";
         }
-      
+
+        private string GenerateRandomFirstName()
+        {
+            string[] firstNames = { "Ana", "Clara", "Carmelita", "Cecilia", "Davi", "Olívia", "Reinaldo", "Renan", "Rafael", "Daiane" };
+
+            return firstNames[_random.Next(firstNames.Length)];
+        }
+        private string GenerateRandomLastName()
+        {
+            string[] lastNames = { "Alves", "Farias", "Teles", "Borba", "Bezerra", "Pires", "Dias", "Souza", "Martins", "Silva" };
+
+            return lastNames[_random.Next(lastNames.Length)];
+        }
+       private string GenerateRandomEmail(string email)
+        {
+            string[] domains = { "gmail.com", "hotmail.com", "Yahoo.com" };
+            string randomString = Guid.NewGuid().ToString().Substring(0, 8);
+
+            // Concatenando com o domínio
+            email = randomString + "@" + _random.Next(domains.Length);
+
+            return email;
+        }
+
     } 
 }
