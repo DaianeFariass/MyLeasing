@@ -142,11 +142,17 @@ namespace MyLeasing.Web.Controllers
                    
                     var editedOwner = await _ownerRepository.GetOwnerByIdWithUserAsync(model.Id);
 
+                    editedOwner.Document = owner.Document;
+                    editedOwner.OwnerName = owner.OwnerName;
+                    editedOwner.Address = owner.Address;
+                    editedOwner.CellPhone = owner.CellPhone;
+                    editedOwner.ImageUrl = owner.ImageUrl;
 
+           
                     await _ownerRepository.UpdateAsync(editedOwner);
 
-                   
-                    await _userHelper.UpdateUserAsync(editedOwner.User, model.OwnerName, model.Address, model.CellPhone, model.Document);
+                    
+                    await _userHelper.UpdateUserAsync(editedOwner.User, editedOwner.OwnerName, editedOwner.Address, editedOwner.CellPhone, editedOwner.Document);
 
 
                 }

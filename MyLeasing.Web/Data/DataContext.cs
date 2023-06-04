@@ -26,5 +26,7 @@ namespace MyLeasing.Web.Data
                 .WithOne(o => o.User)
                 .HasForeignKey<Owner>(u => u.UserId);
         }
+
+        public DbSet<MyLeasing.Web.Data.Entities.Lessee> Lessee { get; set; }
     }
 }
