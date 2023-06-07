@@ -40,7 +40,7 @@ namespace MyLeasing.Web.Data.Entities
         public User user { get; set; }
         public string ImageFullPath => ImageId == Guid.Empty
              ? $"https://myleasingwebtpsi.azurewebsites.net/photos//imagemindisponivel.png"
-             : $"https://myleasingwebtpsi.blob.core.windows.net/lessee/{ImageId}";
+             : $"https://myleasingwebtpsi.blob.core.windows.net/lessees/{ImageId}";
 
 
     }

@@ -1,0 +1,34 @@
+﻿@model MyLeasing.Web.Models.OwnerViewModel
+
+<div class="form-group">
+    <label asp-for="Document" class="control-label"></label>
+    <input asp-for="Document" class="form-control" />
+    <span asp-validation-for="Document" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="OwnerName" class="control-label"></label>
+    <input asp-for="OwnerName" class="form-control" />
+    <span asp-validation-for="OwnerName" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="FixedPhone" class="control-label"></label>
+    <input asp-for="FixedPhone" class="form-control" />
+    <span asp-validation-for="FixedPhone" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="CellPhone" class="control-label"></label>
+    <input asp-for="CellPhone" class="form-control" />
+    <span asp-validation-for="CellPhone" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Address" class="control-label"></label>
+    <input asp-for="Address" class="form-control" />
+    <span asp-validation-for="Address" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="ImageFile" class="control-label"></label>
+    <input asp-for="ImageFile" class="form-control" type="file" />
+    <span asp-validation-for="ImageFile" class="text-danger"></span>
+</div>
+
+
