@@ -31,7 +31,7 @@
                 @Html.DisplayNameFor(model => model.Address)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ImageUrl)
+                @Html.DisplayNameFor(model => model.ImageId)
             </th>
          
             <th></th>
@@ -59,10 +59,7 @@
                 @Html.DisplayFor(modelItem => item.Address)
             </td>
                 <td>
-                    @if (!string.IsNullOrEmpty(item.ImageUrl))
-                    {
-                        <img src="@Url.Content(item.ImageUrl)" alt="Image" style="width:100px;height:150px;max-width:100%;height:auto" />
-                    }
+                    <img src="@Url.Content(item.ImageFullPath)" alt="Image" style="width:100px;height:150px;max-width:100%;height:auto"/>
                 </td>
             <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>

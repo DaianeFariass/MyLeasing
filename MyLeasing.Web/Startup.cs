@@ -47,6 +47,8 @@ namespace MyLeasing.Web
 
             services.AddScoped<IImageHelper, ImageHelper>();
 
+            services.AddScoped<IBlobHelper, BlobHelper>();
+
             services.AddScoped<IConverterHelper, ConverterHelper>();
         
             services.AddScoped<IRepository, Repository>(); //Apaga o objeto que já existe e cria outro

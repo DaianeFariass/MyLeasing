@@ -18,16 +18,16 @@ namespace MyLeasing.Web.Controllers
 
         private readonly ILesseeRepository _lesseeRepository;
         private readonly IUserHelper _userHelper;
-        private readonly IImageHelper _imageHelper;
+        private readonly IBlobHelper _blobHelper;
         private readonly IConverterHelper _converterHelper;
         public LesseesController(ILesseeRepository lesseeRepository,
             IUserHelper userHelper,
-            IImageHelper imageHelper,
+            IBlobHelper blobHelper,
             IConverterHelper converterHelper)
         {
             _lesseeRepository = lesseeRepository;
             _userHelper = userHelper;
-            _imageHelper = imageHelper;
+            _blobHelper= blobHelper;
             _converterHelper = converterHelper;
         }
 
@@ -75,17 +75,17 @@ namespace MyLeasing.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var path = string.Empty;
+                Guid imageId = Guid.NewGuid();
 
                 if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
-                    path = await _imageHelper.UploadImageAsync(model.ImageFile, "lessees");
+                    imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "lessees");
                 }
 
 
                 var user = await _userHelper.CreateUserAsync(model.FullName, email, password, model.CellPhone, model.Document, model.Address);
                 model.user = await _userHelper.GetUserByEmailAsync(email);
-                var lessee = _converterHelper.ToLesse(model, path, true);
+                var lessee = _converterHelper.ToLesse(model, imageId, true);
                 await _lesseeRepository.CreateAsync(lessee);
                 return RedirectToAction(nameof(Index));
             }
@@ -122,13 +122,13 @@ namespace MyLeasing.Web.Controllers
             {
                 try
                 {
-                    var path = string.Empty;
+                    Guid imageId = model.ImageId;
 
                     if (model.ImageFile != null && model.ImageFile.Length > 0)
                     {
-                        path = await _imageHelper.UploadImageAsync(model.ImageFile, "lessees");
+                        imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "lessees");
                     }
-                    var lessee = _converterHelper.ToLesse(model, path, true);
+                    var lessee = _converterHelper.ToLesse(model, imageId, true);
 
                     var editedLessee = await  _lesseeRepository.GetLesseeByIdWithUserAsync(model.Id);
                    
@@ -138,9 +138,11 @@ namespace MyLeasing.Web.Controllers
                     editedLessee.FixedPhone= lessee.FixedPhone;
                     editedLessee.CellPhone= lessee.CellPhone;
                     editedLessee.Address= lessee.Address;
+                    editedLessee.ImageId = lessee.ImageId;
                   
 
                     await _lesseeRepository.UpdateAsync(editedLessee);
+
                     await _userHelper.UpdateUserAsync(editedLessee.user, editedLessee.FullName, editedLessee.Document, editedLessee.CellPhone, editedLessee.Address);
                    
 
@@ -186,7 +188,7 @@ namespace MyLeasing.Web.Controllers
         {
             var lessee = await _lesseeRepository.GetLesseeByIdWithUserAsync(id);       
             User user = lessee.user;
-            await _imageHelper.DeleteImageAsync(lessee.ImageUrl);
+            await _blobHelper.DeleteImageAsync(lessee.ImageFullPath);
             await _lesseeRepository.DeleteAsync(lessee);
             await _userHelper.DeleteUserAsync(user);
             return RedirectToAction(nameof(Index));

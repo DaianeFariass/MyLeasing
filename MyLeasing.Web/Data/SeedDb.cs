@@ -47,7 +47,7 @@ namespace MyLeasing.Commom.Data
             }
             await _context.SaveChangesAsync();
 
-            var getUser = await _userHelper.GetUserByEmailAsync("daia_crica@hotmail.com");          
+                  
         }
         private async Task<User> GenerateUserAsync()
         {
@@ -92,11 +92,13 @@ namespace MyLeasing.Commom.Data
             var lesse = new Lessee
             {
                Document = user.Document,
-               FirstName= GenerateRandomFirstName(),
-               LastName= GenerateRandomLastName(),
+               FirstName= user.FirstName,
+               LastName= user.LastName,
                FixedPhone= user.PhoneNumber,
                CellPhone= user.PhoneNumber, 
-               Address = GenerateRandomAddress(),
+               Address = user.Address,
+               UserId = user.Id,
+               user = user
 
             };
 

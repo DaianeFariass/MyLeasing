@@ -1,6 +1,7 @@
-﻿using System.Xml.Linq;
-using MyLeasing.Commom.Data.Entities;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Xml.Linq;
+using MyLeasing.Commom.Data.Entities;
 
 
 namespace MyLeasing.Web.Data.Entities
@@ -32,11 +33,15 @@ namespace MyLeasing.Web.Data.Entities
         public string Address { get; set; }
 
         [Display(Name = "Photo")]
-        public string ImageUrl { get; set; }
+        public Guid ImageId { get; set; }
         public string FullName => $"{FirstName} {LastName}";
         public string FullNameWithDocument => $"{FirstName} {LastName} - {Document}";
         public string UserId { get; set; }
         public User user { get; set; }
-        
+        public string ImageFullPath => ImageId == Guid.Empty
+             ? $"https://myleasingwebtpsi.azurewebsites.net/photos//imagemindisponivel.png"
+             : $"https://myleasingwebtpsi.blob.core.windows.net/lessee/{ImageId}";
+
+
     }
 }

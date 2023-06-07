@@ -16,17 +16,17 @@ namespace MyLeasing.Web.Controllers
     {
         private readonly IOwnerRepository _ownerRepository;
         private readonly IUserHelper _userHelper;
-        private readonly IImageHelper _imageHelper;
+        private readonly IBlobHelper _blobHelper;
         private readonly IConverterHelper _converterHelper;
 
         public OwnersController(IOwnerRepository ownerRepository, 
             IUserHelper userHelper, 
-            IImageHelper imageHelper,
+            IBlobHelper blobHelper,
             IConverterHelper converterHelper)
         {
             _ownerRepository = ownerRepository;
             _userHelper = userHelper;
-            _imageHelper = imageHelper;
+            _blobHelper= blobHelper;
             _converterHelper = converterHelper;
         }
 
@@ -82,17 +82,16 @@ namespace MyLeasing.Web.Controllers
             }
             if (ModelState.IsValid)
             {
-                var path = string.Empty;
+                 Guid imageId = Guid.NewGuid();
 
                 if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
-                    path = await _imageHelper.UploadImageAsync(model.ImageFile, "owners");
+                    imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "owners");
                 }
                
-
                 var user = await _userHelper.CreateUserAsync(model.OwnerName,email, password, model.Document, model.CellPhone, model.Address);
                 model.User = await _userHelper.GetUserByEmailAsync(email);
-                var owner = _converterHelper.ToOwner(model, path, true);
+                var owner = _converterHelper.ToOwner(model, imageId, true);
                 await _ownerRepository.CreateAsync(owner);
 
                 return RedirectToAction(nameof(Index));
@@ -131,13 +130,13 @@ namespace MyLeasing.Web.Controllers
             {
                 try
                 {
-                    var path = model.ImageUrl;
+                    Guid imageId = model.ImageId;
                     if (model.ImageFile != null && model.ImageFile.Length > 0)
                     {
-                        path = await _imageHelper.UploadImageAsync(model.ImageFile, "owners");
+                        imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "owners");
                     }
 
-                    var owner = _converterHelper.ToOwner(model, path, false);
+                    var owner = _converterHelper.ToOwner(model, imageId, false);
 
                    
                     var editedOwner = await _ownerRepository.GetOwnerByIdWithUserAsync(model.Id);
@@ -146,7 +145,7 @@ namespace MyLeasing.Web.Controllers
                     editedOwner.OwnerName = owner.OwnerName;
                     editedOwner.Address = owner.Address;
                     editedOwner.CellPhone = owner.CellPhone;
-                    editedOwner.ImageUrl = owner.ImageUrl;
+                    editedOwner.ImageId = owner.ImageId;
 
            
                     await _ownerRepository.UpdateAsync(editedOwner);
@@ -196,7 +195,7 @@ namespace MyLeasing.Web.Controllers
         {
             var owner = await _ownerRepository.GetOwnerByIdWithUserAsync(id);
             User user = owner.User;
-            await _imageHelper.DeleteImageAsync(owner.ImageUrl);
+            await _blobHelper.DeleteImageAsync(owner.ImageFullPath);
             await _ownerRepository.DeleteAsync(owner);
             await _userHelper.DeleteUserAsync(user);
             return RedirectToAction(nameof(Index));

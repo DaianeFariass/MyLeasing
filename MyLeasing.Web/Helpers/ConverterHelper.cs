@@ -1,12 +1,14 @@
-﻿using MyLeasing.Web.Data.Entities;
-using MyLeasing.Web.Models;
+﻿using System;
 using System.Net;
+using MyLeasing.Web.Data.Entities;
+using MyLeasing.Web.Models;
+
 
 namespace MyLeasing.Web.Helpers
 {
     public class ConverterHelper : IConverterHelper
     {
-        public Owner ToOwner(OwnerViewModel model, string path, bool isNew)
+        public Owner ToOwner(OwnerViewModel model, Guid imageId, bool isNew)
         {
             return new Owner
             {
@@ -16,7 +18,7 @@ namespace MyLeasing.Web.Helpers
                 CellPhone = model.CellPhone,
                 FixedPhone = model.FixedPhone,
                 Address = model.Address,
-                ImageUrl = path,
+                ImageId = imageId,
                 UserId= model.UserId,
                 User = model.User,
             };
@@ -32,12 +34,12 @@ namespace MyLeasing.Web.Helpers
                 CellPhone = owner.CellPhone,
                 FixedPhone = owner.FixedPhone,
                 Address = owner.Address,
-                ImageUrl = owner.ImageUrl,
+                ImageId = owner.ImageId,
                 UserId= owner.UserId,
                 User = owner.User
             };
         }
-        public Lessee ToLesse(LesseeViewModel model, string path, bool isNew) 
+        public Lessee ToLesse(LesseeViewModel model, Guid imageId, bool isNew) 
         {
             return new Lessee
             {
@@ -47,7 +49,7 @@ namespace MyLeasing.Web.Helpers
                 LastName = model.LastName,
                 FixedPhone = model.FixedPhone,
                 CellPhone = model.CellPhone,
-                ImageUrl = path,
+                ImageId = imageId,
                 Address = model.Address,
                 UserId = model.UserId,
                 user = model.user
@@ -66,7 +68,7 @@ namespace MyLeasing.Web.Helpers
                 LastName = lessee.LastName,
                 FixedPhone = lessee.FixedPhone,
                 CellPhone = lessee.CellPhone,
-                ImageUrl = lessee.ImageUrl,
+                ImageId = lessee.ImageId,
                 Address = lessee.Address,
                 UserId= lessee.UserId,
                 user = lessee.user

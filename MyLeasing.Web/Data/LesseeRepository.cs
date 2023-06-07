@@ -19,7 +19,6 @@ namespace MyLeasing.Web.Data
             return _context.Lessee.Include(p => p.user);
         }
 
-
         public async Task<Lessee> GetLesseeByIdWithUserAsync(int? id)
         {
             return await Task.Run(() =>
