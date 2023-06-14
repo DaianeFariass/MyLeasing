@@ -7,7 +7,7 @@ namespace MyLeasing.Web.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OwnersController : Controller
+    public class OwnersController : ControllerBase
     {
         private readonly IOwnerRepository _ownerRepository;
 

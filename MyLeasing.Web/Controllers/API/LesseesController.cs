@@ -6,7 +6,7 @@ namespace MyLeasing.Web.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LesseesController : Controller
+    public class LesseesController : ControllerBase
     {
         private readonly ILesseeRepository _lesseeRepository;
 

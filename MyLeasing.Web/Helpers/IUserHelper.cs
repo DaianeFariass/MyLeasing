@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using MyLeasing.Web.Data.Entities;
+using MyLeasing.Web.Models;
 
 namespace MyLeasing.Web.Helpers
 {
@@ -12,5 +13,16 @@ namespace MyLeasing.Web.Helpers
         Task<IdentityResult> AddUserAsync(User user, string password);
         Task<IdentityResult> UpdateUserAsync(User user, string name, string document, string phoneNumber,string address);
         Task<IdentityResult> DeleteUserAsync(User user);
+
+        Task<SignInResult> LoginAsync(LoginViewModel model);
+
+        Task LogoutAsync();
+        Task<IdentityResult> UpdateUserAsync(User user);
+
+        Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword);
+
+
+
+
     }
 }

@@ -13,6 +13,8 @@ namespace MyLeasing.Web.Helpers
 
         Task<Guid> UploadBlobAsync(string image, string containerName);
 
-        Task DeleteImageAsync(string image);
+        Task DeleteImageAsync(string imageId);
+        
+
     }
 }

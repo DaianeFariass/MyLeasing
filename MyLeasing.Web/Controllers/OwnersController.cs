@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyLeasing.Commom.Data;
@@ -12,8 +13,10 @@ using MyLeasing.Web.Models;
 
 namespace MyLeasing.Web.Controllers
 {
+ 
     public class OwnersController : Controller
     {
+        
         private readonly IOwnerRepository _ownerRepository;
         private readonly IUserHelper _userHelper;
         private readonly IBlobHelper _blobHelper;
@@ -58,6 +61,7 @@ namespace MyLeasing.Web.Controllers
 
 
         // GET: Owners/Create
+        [Authorize]
         public IActionResult Create()
         {
             return View();
@@ -102,6 +106,7 @@ namespace MyLeasing.Web.Controllers
 
 
         // GET: Owners/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -171,6 +176,7 @@ namespace MyLeasing.Web.Controllers
             return View(model);
         }
         // GET: Owners/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

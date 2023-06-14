@@ -45,13 +45,12 @@ namespace MyLeasing.Web.Helpers
             await blockBlob.UploadFromStreamAsync(stream);
             return name;
         }
-        public async Task DeleteImageAsync(string image)
+        public async Task DeleteImageAsync(string imageId)
         {
-            
-            if (!string.IsNullOrEmpty(image))
+            if (!string.IsNullOrEmpty(imageId))
             {
-                string folder = image.Split('/')[2];
-                string file = image.Split('/').Last();
+                string folder = imageId.Split('/')[2];
+                string file = imageId.Split('/').Last();
 
                 string delete = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "photos", folder, file);
 
