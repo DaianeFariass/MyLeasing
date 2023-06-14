@@ -83,14 +83,14 @@ namespace MyLeasing.Web.Helpers
             await _signInManager.SignOutAsync();
         }
 
-        public Task<IdentityResult> UpdateUserAsync(User user)
+        public async Task<IdentityResult> UpdateUserAsync(User user)
         {
-            throw new NotImplementedException();
+            return await _userManager.UpdateAsync(user);
         }
 
-        public Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword)
+        public async Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword)
         {
-            throw new NotImplementedException();
+            return await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
         }
     }
 }
