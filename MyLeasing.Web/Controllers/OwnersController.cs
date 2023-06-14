@@ -94,7 +94,7 @@ namespace MyLeasing.Web.Controllers
                 }
                
                 var user = await _userHelper.CreateUserAsync(model.OwnerName,email, password, model.Document, model.CellPhone, model.Address);
-                model.User = await _userHelper.GetUserByEmailAsync(email);
+                model.User = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);
                 var owner = _converterHelper.ToOwner(model, imageId, true);
                 await _ownerRepository.CreateAsync(owner);
 
@@ -143,7 +143,7 @@ namespace MyLeasing.Web.Controllers
 
                     var owner = _converterHelper.ToOwner(model, imageId, false);
 
-                   
+                    
                     var editedOwner = await _ownerRepository.GetOwnerByIdWithUserAsync(model.Id);
 
                     editedOwner.Document = owner.Document;
@@ -152,12 +152,12 @@ namespace MyLeasing.Web.Controllers
                     editedOwner.CellPhone = owner.CellPhone;
                     editedOwner.ImageId = owner.ImageId;
 
-           
+                   
                     await _ownerRepository.UpdateAsync(editedOwner);
 
                     
                     await _userHelper.UpdateUserAsync(editedOwner.User, editedOwner.OwnerName, editedOwner.Address, editedOwner.CellPhone, editedOwner.Document);
-
+                  
 
                 }
                 catch (DbUpdateConcurrencyException)

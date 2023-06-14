@@ -86,7 +86,7 @@ namespace MyLeasing.Web.Controllers
 
 
                 var user = await _userHelper.CreateUserAsync(model.FullName, email, password, model.CellPhone, model.Document, model.Address);
-                model.user = await _userHelper.GetUserByEmailAsync(email);
+                model.user = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);
                 var lessee = _converterHelper.ToLesse(model, imageId, true);
                 await _lesseeRepository.CreateAsync(lessee);
                 return RedirectToAction(nameof(Index));
@@ -133,6 +133,7 @@ namespace MyLeasing.Web.Controllers
                     }
                     var lessee = _converterHelper.ToLesse(model, imageId, true);
 
+                 
                     var editedLessee = await  _lesseeRepository.GetLesseeByIdWithUserAsync(model.Id);
                    
                     editedLessee.Document= lessee.Document;

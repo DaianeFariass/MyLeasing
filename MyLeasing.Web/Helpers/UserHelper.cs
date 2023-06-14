@@ -53,11 +53,13 @@ namespace MyLeasing.Web.Helpers
         }
         public async Task<IdentityResult> UpdateUserAsync(User user, string name, string address, string phonenumber, string document)
         {
+           
             user.FirstName = name.Split(" ").FirstOrDefault();
             user.LastName = name.Split(" ").Skip(1).FirstOrDefault();
             user.Address = address;
             user.PhoneNumber = phonenumber;
             user.Document = document;
+          
             return await _userManager.UpdateAsync(user);
 
         }
