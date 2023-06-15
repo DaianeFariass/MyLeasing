@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using MyLeasing.Web.Data;
 using MyLeasing.Web.Data.Entities;
 using MyLeasing.Web.Helpers;
 using MyLeasing.Web.Models;
+
 
 namespace MyLeasing.Web.Controllers
 {
@@ -28,7 +26,7 @@ namespace MyLeasing.Web.Controllers
         {
             _lesseeRepository = lesseeRepository;
             _userHelper = userHelper;
-            _blobHelper= blobHelper;
+            _blobHelper = blobHelper;
             _converterHelper = converterHelper;
         }
 
@@ -36,7 +34,7 @@ namespace MyLeasing.Web.Controllers
         public IActionResult Index()
         {
             return View(_lesseeRepository.GetAll().OrderBy(P => P.FirstName));
-                
+
         }
 
         // GET: Lessees/Details/5
@@ -57,7 +55,7 @@ namespace MyLeasing.Web.Controllers
         }
 
         // GET: Lessees/Create
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -92,11 +90,11 @@ namespace MyLeasing.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
-            
+
         }
 
         // GET: Lessees/Edit/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -120,7 +118,7 @@ namespace MyLeasing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(LesseeViewModel model)
         {
-            
+
             if (ModelState.IsValid)
             {
                 try
@@ -133,28 +131,28 @@ namespace MyLeasing.Web.Controllers
                     }
                     var lessee = _converterHelper.ToLesse(model, imageId, true);
 
-                 
-                    var editedLessee = await  _lesseeRepository.GetLesseeByIdWithUserAsync(model.Id);
-                   
-                    editedLessee.Document= lessee.Document;
-                    editedLessee.FirstName= lessee.FirstName;
-                    editedLessee.LastName= lessee.LastName;
-                    editedLessee.FixedPhone= lessee.FixedPhone;
-                    editedLessee.CellPhone= lessee.CellPhone;
-                    editedLessee.Address= lessee.Address;
+
+                    var editedLessee = await _lesseeRepository.GetLesseeByIdWithUserAsync(model.Id);
+
+                    editedLessee.Document = lessee.Document;
+                    editedLessee.FirstName = lessee.FirstName;
+                    editedLessee.LastName = lessee.LastName;
+                    editedLessee.FixedPhone = lessee.FixedPhone;
+                    editedLessee.CellPhone = lessee.CellPhone;
+                    editedLessee.Address = lessee.Address;
                     editedLessee.ImageId = lessee.ImageId;
-                  
+
 
                     await _lesseeRepository.UpdateAsync(editedLessee);
 
                     await _userHelper.UpdateUserAsync(editedLessee.user, editedLessee.FullName, editedLessee.Document, editedLessee.CellPhone, editedLessee.Address);
-                   
 
-                   
+
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (! await _lesseeRepository.ExistAsync(model))
+                    if (!await _lesseeRepository.ExistAsync(model))
                     {
                         return NotFound();
                     }
@@ -169,7 +167,7 @@ namespace MyLeasing.Web.Controllers
         }
 
         // GET: Lessees/Delete/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -191,13 +189,13 @@ namespace MyLeasing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var lessee = await _lesseeRepository.GetLesseeByIdWithUserAsync(id);       
+            var lessee = await _lesseeRepository.GetLesseeByIdWithUserAsync(id);
             User user = lessee.user;
             await _blobHelper.DeleteImageAsync(lessee.ImageFullPath);
             await _lesseeRepository.DeleteAsync(lessee);
             await _userHelper.DeleteUserAsync(user);
             return RedirectToAction(nameof(Index));
         }
-      
+
     }
 }

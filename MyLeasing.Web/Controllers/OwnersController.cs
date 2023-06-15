@@ -1,35 +1,34 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyLeasing.Commom.Data;
-using MyLeasing.Web.Data;
 using MyLeasing.Web.Data.Entities;
 using MyLeasing.Web.Helpers;
 using MyLeasing.Web.Models;
 
+
 namespace MyLeasing.Web.Controllers
 {
- 
+
     public class OwnersController : Controller
     {
-        
+
         private readonly IOwnerRepository _ownerRepository;
         private readonly IUserHelper _userHelper;
         private readonly IBlobHelper _blobHelper;
         private readonly IConverterHelper _converterHelper;
 
-        public OwnersController(IOwnerRepository ownerRepository, 
-            IUserHelper userHelper, 
+        public OwnersController(IOwnerRepository ownerRepository,
+            IUserHelper userHelper,
             IBlobHelper blobHelper,
             IConverterHelper converterHelper)
         {
             _ownerRepository = ownerRepository;
             _userHelper = userHelper;
-            _blobHelper= blobHelper;
+            _blobHelper = blobHelper;
             _converterHelper = converterHelper;
         }
 
@@ -38,7 +37,7 @@ namespace MyLeasing.Web.Controllers
         public IActionResult Index()
         {
             return View(_ownerRepository.GetAll().OrderBy(p => p.OwnerName));
-           
+
         }
 
         // GET: Owners/Details/5
@@ -50,7 +49,7 @@ namespace MyLeasing.Web.Controllers
             }
 
             var owner = await _ownerRepository.GetByIdAsync(id.Value); //Passa também o valor nulo 
-          
+
             if (owner == null)
             {
                 return NotFound();
@@ -61,7 +60,8 @@ namespace MyLeasing.Web.Controllers
 
 
         // GET: Owners/Create
-        [Authorize]
+
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -74,7 +74,7 @@ namespace MyLeasing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(OwnerViewModel model)
         {
-           
+
             var email = Request.Form["Email"].ToString();
             email = model.OwnerName.Replace(" ", "_") + "@Email.com";
             var password = Request.Form["Password"].ToString();
@@ -86,14 +86,14 @@ namespace MyLeasing.Web.Controllers
             }
             if (ModelState.IsValid)
             {
-                 Guid imageId = Guid.NewGuid();
+                Guid imageId = Guid.NewGuid();
 
                 if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
                     imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "owners");
                 }
-               
-                var user = await _userHelper.CreateUserAsync(model.OwnerName,email, password, model.Document, model.CellPhone, model.Address);
+
+                var user = await _userHelper.CreateUserAsync(model.OwnerName, email, password, model.Document, model.CellPhone, model.Address);
                 model.User = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);
                 var owner = _converterHelper.ToOwner(model, imageId, true);
                 await _ownerRepository.CreateAsync(owner);
@@ -106,7 +106,7 @@ namespace MyLeasing.Web.Controllers
 
 
         // GET: Owners/Edit/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -130,7 +130,7 @@ namespace MyLeasing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(OwnerViewModel model)
         {
-           
+
             if (ModelState.IsValid)
             {
                 try
@@ -143,7 +143,7 @@ namespace MyLeasing.Web.Controllers
 
                     var owner = _converterHelper.ToOwner(model, imageId, false);
 
-                    
+
                     var editedOwner = await _ownerRepository.GetOwnerByIdWithUserAsync(model.Id);
 
                     editedOwner.Document = owner.Document;
@@ -152,12 +152,12 @@ namespace MyLeasing.Web.Controllers
                     editedOwner.CellPhone = owner.CellPhone;
                     editedOwner.ImageId = owner.ImageId;
 
-                   
+
                     await _ownerRepository.UpdateAsync(editedOwner);
 
-                    
+
                     await _userHelper.UpdateUserAsync(editedOwner.User, editedOwner.OwnerName, editedOwner.Address, editedOwner.CellPhone, editedOwner.Document);
-                  
+
 
                 }
                 catch (DbUpdateConcurrencyException)
@@ -176,7 +176,7 @@ namespace MyLeasing.Web.Controllers
             return View(model);
         }
         // GET: Owners/Delete/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -207,5 +207,5 @@ namespace MyLeasing.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
     }
-    
+
 }
