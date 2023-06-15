@@ -52,7 +52,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> 
-        <a asp-action="Index" class="btn btn-success">Back to List</a>
+        <button type="submit" class="btn btn-danger"><i class="fa fa-delete-left"></i>Delete</button>
+        <a asp-action="Index" class="btn btn-success"><i class="fa fa-chevron-left"></i>Back to List</a>
     </form>
 </div>
